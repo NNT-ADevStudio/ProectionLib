@@ -79,7 +79,8 @@ namespace ProectionLib.Controllers
                         donwloadFile.FileBytes = await response.Content.ReadAsByteArrayAsync();
 
                         if (response.Content.Headers.ContentDisposition != null)
-                            donwloadFile.FileName = response.Content.Headers.ContentDisposition.FileNameStar;
+                            donwloadFile.FileName = response.Content.Headers.ContentDisposition.FileName;
+                            donwloadFile.FileNameStar = response.Content.Headers.ContentDisposition.FileNameStar;
                     }
                 }
 
