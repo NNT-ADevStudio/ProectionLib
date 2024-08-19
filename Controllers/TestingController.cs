@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ProectionLib.Controllers
 {
@@ -14,15 +15,27 @@ namespace ProectionLib.Controllers
 
         public override string ControllerUrl => "testing";
 
-        public async Task<IEnumerable<Testing>> GetTestingList(int page = 1)
+        public async Task<ListModel<Testing>> GetTestingList(int complite = 1, int page = 1)
         {
             try
             {
                 using (var client = Auth.GenerateHttpClient())
                 {
-                    var response = await client.GetAsync($"{ControllerUrl}/list?page={page}");
+                    var response = await client.GetAsync($"{ControllerUrl}/list?page={page}&complete={complite}");
+                    response.EnsureSuccessStatusCode();
+
+                    ListModel<Testing> testings = new ListModel<Testing>();
+
                     var json = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<IEnumerable<Testing>>(json);
+
+                    testings.TotalItems = Convert.ToInt32(response.Headers.GetValues("x-pagination-total-count").FirstOrDefault());
+                    testings.TotalPages = Convert.ToInt32(response.Headers.GetValues("x-pagination-page-count").FirstOrDefault());
+                    testings.Count = Convert.ToInt32(response.Headers.GetValues("x-pagination-per-page").FirstOrDefault());
+                    testings.Page = Convert.ToInt32(response.Headers.GetValues("x-pagination-current-page").FirstOrDefault());
+
+                    testings.Items = JsonSerializer.Deserialize<IEnumerable<Testing>>(json);
+
+                    return testings;
                 }
             }
             catch (Exception ex)
@@ -80,7 +93,7 @@ namespace ProectionLib.Controllers
 
                         if (response.Content.Headers.ContentDisposition != null)
                             donwloadFile.FileName = response.Content.Headers.ContentDisposition.FileName;
-                            donwloadFile.FileNameStar = response.Content.Headers.ContentDisposition.FileNameStar;
+                        donwloadFile.FileNameStar = response.Content.Headers.ContentDisposition.FileNameStar;
                     }
                 }
 
