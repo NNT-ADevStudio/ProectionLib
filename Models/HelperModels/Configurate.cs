@@ -17,6 +17,7 @@ namespace ProectionLib.Models.HelperModels
                 BaseAddress = new Uri(baseUrl),
                 Timeout = TimeSpan.FromMilliseconds(timeoutMs)
             };
+
             HttpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 
             return HttpClient;
