@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Web;
 
 namespace ProectionLib.Controllers
 {
@@ -15,13 +16,24 @@ namespace ProectionLib.Controllers
 
         public override string ControllerUrl => "testing";
 
-        public async Task<ListModel<Testing>> GetTestingList(int complite = 1, int page = 1)
+        public async Task<ListModel<Testing>> GetTestingList(string tested = null, int? complite = null, int? page = null)
         {
             try
             {
                 using (var client = Auth.GenerateHttpClient())
                 {
-                    var response = await client.GetAsync($"{ControllerUrl}/list?page={page}&complete={complite}");
+                    var query = HttpUtility.ParseQueryString(string.Empty);
+
+                    if (page != null)
+                        query["page"] = page.ToString();
+
+                    if(complite != null)
+                        query["complete"] = complite.ToString();
+
+                    if(tested != null)
+                        query["tested"] = tested;
+
+                    var response = await client.GetAsync($"{ControllerUrl}/list?{query}");
                     response.EnsureSuccessStatusCode();
 
                     ListModel<Testing> testings = new ListModel<Testing>();
@@ -65,7 +77,7 @@ namespace ProectionLib.Controllers
         {
             try
             {
-                using (var httpClient = Auth.HttpClient)
+                using (var httpClient = Auth.GenerateHttpClient())
                 {
                     byte[] fileBytes = await httpClient.GetByteArrayAsync($"{ControllerUrl}/result?id={id}");
                     return fileBytes;
@@ -92,8 +104,10 @@ namespace ProectionLib.Controllers
                         donwloadFile.FileBytes = await response.Content.ReadAsByteArrayAsync();
 
                         if (response.Content.Headers.ContentDisposition != null)
+                        {
                             donwloadFile.FileName = response.Content.Headers.ContentDisposition.FileName;
-                        donwloadFile.FileNameStar = response.Content.Headers.ContentDisposition.FileNameStar;
+                            donwloadFile.FileNameStar = response.Content.Headers.ContentDisposition.FileNameStar;
+                        }
                     }
                 }
 

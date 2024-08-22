@@ -6,17 +6,19 @@ namespace ProectionLib.Models.HelperModels
     {
         public string ApiKey { get; set; }
 
-        public HttpClient HttpClient { get; private set; }
-
         public Auth(string apiKey)
         {
             ApiKey = apiKey;
-            HttpClient = Configurate.GetHttpClient(apiKey);
         }
 
         public HttpClient GenerateHttpClient() 
         {
             return Configurate.GetHttpClient(ApiKey);
+        }
+
+        public HttpClient GenerateHttpClient(int timeoutMs)
+        {
+            return Configurate.GetHttpClient(ApiKey, timeoutMs);
         }
     }
 }

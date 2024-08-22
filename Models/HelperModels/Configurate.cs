@@ -7,14 +7,15 @@ namespace ProectionLib.Models.HelperModels
     {
         public const string defaultBaseUrl = "https://api.proaction.pro/api/";
 
-        public static HttpClient GetHttpClient(string apiKey, string baseUrl = null)
+        public static HttpClient GetHttpClient(string apiKey, int timeoutMs = 60000, string baseUrl = null)
         {
             if (baseUrl == null)
                 baseUrl = defaultBaseUrl;
 
             HttpClient HttpClient = new HttpClient
             {
-                BaseAddress = new Uri(baseUrl)
+                BaseAddress = new Uri(baseUrl),
+                Timeout = TimeSpan.FromMilliseconds(timeoutMs)
             };
             HttpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 
